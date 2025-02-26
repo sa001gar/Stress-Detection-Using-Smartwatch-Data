@@ -1,4 +1,4 @@
-C1,C2,C3,C4,C5,C6,C7,C8,C9
+Person_Id, Age, Sleep_Duration, Quality_of_Sleep, Physical_Activity_Level,Blood_Pressure, Heart_Rate, Daily_Steps, Stress_Level
 1,27,6.1,6,42,126/83,77,4200,6
 2,28,6.2,6,60,125/80,75,10000,8
 3,28,6.2,6,60,125/80,75,10000,8

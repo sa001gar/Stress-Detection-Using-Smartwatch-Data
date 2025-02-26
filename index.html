@@ -3,84 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stress Detection</title>
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <title>Stress Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 40px; }
+        input { margin: 10px; }
+        button { padding: 10px 20px; cursor: pointer; }
+        table { margin: 20px auto; border-collapse: collapse; width: 90%; max-width: 800px; }
+        th, td { border: 1px solid black; padding: 10px; text-align: center; }
+        th { background-color: #f4f4f4; }
+    </style>
 </head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-bold text-center mb-4">Upload CSV for Stress Prediction</h2>
-        <input type="file" id="fileInput" accept=".csv" class="block w-full border p-2 mb-4 rounded" />
-        <select id="modelSelect" class="block w-full border p-2 mb-4 rounded">
-            <option value="RandomForest">Random Forest</option>
-            <option value="SVM">SVM</option>
-            <option value="KNN">KNN</option>
-        </select>
-        <button onclick="uploadFile()" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-700">Upload</button>
-    </div>
+<body>
+    <h2>Upload CSV for Stress Prediction</h2>
+    <input type="file" id="csvFile" accept=".csv">
+    <button onclick="uploadFile()">Upload</button>
     
-    <div class="max-w-4xl mx-auto mt-6">
-        <table id="resultTable" class="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg hidden">
-            <thead>
-                <tr class="bg-gray-200 text-left">
-                    <th class="py-2 px-4 border">Student ID</th>
-                    <th class="py-2 px-4 border">Name</th>
-                    <th class="py-2 px-4 border">Age</th>
-                    <th class="py-2 px-4 border">Stress Level</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
+    <h3>Prediction Results</h3>
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>Person Name</th>
+                <th>ID</th>
+                <th>Age</th>
+                <th>Stress Level</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    
     <script>
-        async function uploadFile() {
-            const fileInput = document.getElementById("fileInput");
-            const modelSelect = document.getElementById("modelSelect");
-            
+        function uploadFile() {
+            let fileInput = document.getElementById("csvFile");
             if (!fileInput.files.length) {
                 alert("Please select a CSV file.");
                 return;
             }
-            
-            const formData = new FormData();
+
+            let formData = new FormData();
             formData.append("file", fileInput.files[0]);
-            formData.append("model_name", modelSelect.value);
-            
-            try {
-                const response = await fetch("http://localhost:8000/upload/", {
-                    method: "POST",
-                    body: formData,
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.statusText}`);
+
+            fetch("http://127.0.0.1:8000/upload/", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.querySelector("#resultsTable tbody");
+                tableBody.innerHTML = "";
+
+                if (data.data && Array.isArray(data.data)) {
+                    data.data.forEach(row => {
+                        let tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${row.Person_Name || "N/A"}</td>
+                            <td>${row.ID || "N/A"}</td>
+                            <td>${row.Age || "N/A"}</td>
+                            <td>${row.Stress_Level || "N/A"}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                } else {
+                    alert("Error: " + (data.detail || "Unknown error"));
                 }
-                
-                const result = await response.json();
-                displayResults(result.data);
-            } catch (error) {
-                console.error("Upload failed:", error);
-                alert("Failed to upload file. Please try again.");
-            }
-        }
-        
-        function displayResults(data) {
-            const table = document.getElementById("resultTable");
-            const tbody = table.querySelector("tbody");
-            tbody.innerHTML = "";
-            
-            data.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td class="py-2 px-4 border">${row.person_id}</td>
-                    <td class="py-2 px-4 border">${row.name || "-"}</td>
-                    <td class="py-2 px-4 border">${row.age}</td>
-                    <td class="py-2 px-4 border">${row.stress_level.toFixed(2)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-            
-            table.classList.remove("hidden");
+            })
+            .catch(error => alert("Failed to upload file: " + error));
         }
     </script>
 </body>

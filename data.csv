@@ -1,5 +1,6 @@
-name,Person_Id,Age,Sleep_Duration,Heart_Rate,Daily_Steps,Systolic_BP,Diastolic_BP,Stress_Level,Physical_Activity_Level,Quality_of_Sleep
-John Doe,101,25,7,72,5000,120,80,3,3,4
-Jane Smith,102,30,6,75,7000,130,85,4,2,3
-Alice Brown,103,22,8,70,6000,118,78,2,4,5
-Bob Johnson,104,40,5,80,4000,140,90,5,1,2
+ID,Person_Name,Age,Sleep_Duration,Quality_of_Sleep,Physical_Activity_Level,Blood_Pressure,Heart_Rate,Daily_Steps
+1,John Doe,25,7,3,4,120/80,72,5000
+2,Jane Smith,30,6,2,3,130/85,78,6000
+3,Robert Brown,40,5,1,2,140/90,85,4000
+4,Emily Davis,22,8,4,5,110/75,68,8000
+5,Michael Johnson,35,6.5,3,3.5,125/82,74,5500
