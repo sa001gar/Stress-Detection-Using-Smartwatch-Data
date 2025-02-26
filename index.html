@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stress Detection</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold text-center mb-4">Upload CSV for Stress Prediction</h2>
+        <input type="file" id="fileInput" accept=".csv" class="block w-full border p-2 mb-4 rounded" />
+        <select id="modelSelect" class="block w-full border p-2 mb-4 rounded">
+            <option value="RandomForest">Random Forest</option>
+            <option value="SVM">SVM</option>
+            <option value="KNN">KNN</option>
+        </select>
+        <button onclick="uploadFile()" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-700">Upload</button>
+    </div>
+    
+    <div class="max-w-4xl mx-auto mt-6">
+        <table id="resultTable" class="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+            <thead>
+                <tr class="bg-gray-200 text-left">
+                    <th class="py-2 px-4 border">Student ID</th>
+                    <th class="py-2 px-4 border">Name</th>
+                    <th class="py-2 px-4 border">Age</th>
+                    <th class="py-2 px-4 border">Stress Level</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById("fileInput");
+            const modelSelect = document.getElementById("modelSelect");
+            
+            if (!fileInput.files.length) {
+                alert("Please select a CSV file.");
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("model_name", modelSelect.value);
+            
+            try {
+                const response = await fetch("http://localhost:8000/upload/", {
+                    method: "POST",
+                    body: formData,
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                displayResults(result.data);
+            } catch (error) {
+                console.error("Upload failed:", error);
+                alert("Failed to upload file. Please try again.");
+            }
+        }
+        
+        function displayResults(data) {
+            const table = document.getElementById("resultTable");
+            const tbody = table.querySelector("tbody");
+            tbody.innerHTML = "";
+            
+            data.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="py-2 px-4 border">${row.person_id}</td>
+                    <td class="py-2 px-4 border">${row.name || "-"}</td>
+                    <td class="py-2 px-4 border">${row.age}</td>
+                    <td class="py-2 px-4 border">${row.stress_level.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            table.classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>

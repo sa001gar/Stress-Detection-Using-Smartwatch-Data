@@ -20,7 +20,7 @@ def prepare_train_test_data():
     df = pd.read_csv("final_dataset.csv")
 
     # Features (X) and Target (y)
-    X = df[["C3", "C4", "C5", "C6", "C7", "C8"]]
+    X = df[["C2","C3", "C4", "C5", "C6", "C7", "C8"]]
     y = df["C9"]
 
     # Convert categorical variables if necessary
